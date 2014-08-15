@@ -21,7 +21,7 @@
     require_once('PHPBones/constructor.php');
 
     /**
-     * Description of phpClassBuilder
+     * Description of PHPBones
      *
      * @author stretch
      */
@@ -33,13 +33,14 @@
         }
 
         public function buildClass() {
-            if($this->validate()) {
-
+            if($this->validate($this->php_class)) {
+				$constructor = new PHPBones_Constructor();
+				$constructor->buildClass($this->php_class);
             }
         }
 
         private function validate() {
-            $validator = new PHPClassBuilder_Validator();
+            $validator = new PHPBones_Validator();
             $validator->validate($this->php_class);
             return $validator->isValid();
         }
@@ -79,7 +80,7 @@
         }
     }
 
-    $class_builder = new PHPClassBuilder();
+    $class_builder = new PHPBones();
     $class = $class_builder->getPHPClass();
     if(isset($with_getters)) {
         $class->addAccessMethods($with_getters);

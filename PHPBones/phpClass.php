@@ -19,7 +19,7 @@
     require_once('PHPClass/Properties.php');
 
     /**
-     * Description of phpClassBuilder
+     * Description of PHPBones
      *
      * @author stretch
      */
@@ -47,38 +47,38 @@
         }
 
         private function validate() {
-            $validator = new PHPClassBuilder_Validator();
+            $validator = new PHPBones_Validator();
             $validator->validate($this);
             return $validator->isValid();
         }
 
         public function setPublic(array $public) {
-            $this->public = new PHPClassBuilder_PHPClass_Properties($public);
+            $this->public = new PHPBones_PHPClass_Properties($public);
             return $this;
         }
 
         public function setProtected(array $protected) {
-            $this->protected = new PHPClassBuilder_PHPClass_Properties($protected);
+            $this->protected = new PHPBones_PHPClass_Properties($protected);
             return $this;
         }
 
         public function setPrivate(array $private) {
-            $this->private = new PHPClassBuilder_PHPClass_Properties($private);
+            $this->private = new PHPBones_PHPClass_Properties($private);
             return $this;
         }
 
         public function setPublicStatic(array $public_static) {
-            $this->public_static = new PHPClassBuilder_PHPClass_Properties($public_static);
+            $this->public_static = new PHPBones_PHPClass_Properties($public_static);
             return $this;
         }
 
         public function setProtectedStatic(array $protected_static) {
-            $this->protected_static = new PHPClassBuilder_PHPClass_Properties($protected_static);
+            $this->protected_static = new PHPBones_PHPClass_Properties($protected_static);
             return $this;
         }
 
         public function setPrivateStatic(array $private_static) {
-            $this->private_static = new PHPClassBuilder_PHPClass_Properties($private_static);
+            $this->private_static = new PHPBones_PHPClass_Properties($private_static);
             return $this;
         }
 

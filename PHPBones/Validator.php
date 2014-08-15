@@ -32,7 +32,7 @@
 
         public function __construct() {}
 
-        public function validate(PHPClassBuilder_PHPClass $php_class) {
+        public function validate(PHPBones_PHPClass $php_class) {
             $this->php_class = $php_class;
 
             $this->validateClassname();

@@ -46,7 +46,7 @@
             $this->output = '<?php ' . str_repeat(self::NL, 2);
         }
 
-        public function buildClass(PHPClassBuilder_PHPClass $php_class) {
+        public function buildClass(PHPBones_PHPClass $php_class) {
             $this->php_class = $php_class;
 
             $this->setRequires();
@@ -77,7 +77,7 @@
             $this->setAccessorMethods($this->php_class->getPrivateStatic());
         }
 
-        private function setAccessorMethods(PHPClassBuilder_PHPClass_Properties $properties_obj) {
+        private function setAccessorMethods(PHPBones_PHPClass_Properties $properties_obj) {
             foreach($properties_obj->getProperties() as $property) {
                 $this->setGetterMethod($property);
                 $this->setSetterMethod($property);
@@ -125,7 +125,7 @@
             $this->setProperties($this->php_class->getPrivateStatic());
         }
 
-        private function setProperties(PHPClassBuilder_PHPClass_Properties $properties_obj) {
+        private function setProperties(PHPBones_PHPClass_Properties $properties_obj) {
             $static = ($properties_obj->getStatic() === true) ? 'static' . self::SPACE : '';
             foreach($properties_obj->getProperties() as $property) {
                 $this->output .=
