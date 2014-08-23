@@ -18,9 +18,10 @@
      */
 
     /**
-     * Description of Validator
+     * PHPBones_Validator validates the PHPBones_PHPClass object
      *
      * @author stretch
+     * @since 1.0
      */
     class PHPBones_Validator {
 
@@ -32,6 +33,13 @@
 
         public function __construct() {}
 
+        /**
+         * main validation method
+         *
+         * @param PHPBones_PHPClass $php_class
+         * @return void
+         * @since 1.0
+         */
         public function validate(PHPBones_PHPClass $php_class) {
             $this->php_class = $php_class;
 
@@ -53,38 +61,67 @@
             }
         }
 
+        /**
+         * validates the implements (interface) values
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateImplements() {
-            foreach($this->class_builder->getImplements() as $interface) {
+            foreach($this->php_class->getImplements() as $interface) {
                 if(!preg_match(self::CLASSNAME_REGEX, $interface)) {
                     $this->errors[] = 'Implemented interface name ' . $interface . ' is invalid';
                 }
             }
         }
 
+        /**
+         * validates the extends (parent class) value
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateExtends() {
-            if(!preg_match(self::CLASSNAME_REGEX, $this->class_builder->getExtends())) {
-                $this->errors[] = 'Extended Classname ' . $this->class_builder->getExtends() . ' is invalid';
+            if(!preg_match(self::CLASSNAME_REGEX, $this->php_class->getExtends())) {
+                $this->errors[] = 'Extended Classname ' . $this->php_class->getExtends() . ' is invalid';
             }
         }
 
+        /**
+         * validates the include_once values
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateIncludes() {
-            if(isset($this->class_builder->getIncludes())
-                && is_array($this->class_builder->getIncludes())
-                && count($this->class_builder->getIncludes()) > 0) {
-
-                $this->validateFiles($this->class_builder->getIncludes());
+            $includes = $this->php_class->getIncludes();
+            if(isset($includes) && is_array($includes) && count($includes) > 0) {
+                $this->validateFiles($includes);
             }
         }
 
+        /**
+         * validates the require_once values
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateRequires() {
-            if(isset($this->class_builder->getRequires())
-                && is_array($this->class_builder->getRequires())
-                && count($this->class_builder->getRequires()) > 0) {
+            $requires = $this->php_class->getRequires();
+            if(isset($requires)
+                && is_array($requires)
+                && count($requires) > 0) {
 
-                $this->validateFiles($this->class_builder->getRequires());
+                $this->validateFiles($requires);
             }
         }
 
+        /**
+         * validates files
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateFiles($files_array) {
             foreach($files_array as $file_type => $filename) {
                 if(!  file_exists( $filename )) {
@@ -93,54 +130,96 @@
             }
         }
 
+        /**
+         * validates private static properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validatePrivateStaticProperties() {
-            if(is_array($this->class_builder->getPrivateStaticProperties())) {
-                if(count($this->class_builder->getPrivateStaticProperties()) > 0) {
-                    $this->validateProperties($this->class_builder->getPrivateStaticProperties());
+            if(is_array($this->php_class->getPrivateStatic())) {
+                if(count($this->php_class->getPrivateStatic()) > 0) {
+                    $this->validateProperties($this->php_class->getPrivateStatic());
                 }
             }
         }
 
+        /**
+         * validates the private properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validatePrivateProperties() {
-            if(is_array($this->class_builder->getPrivateProperties())) {
-                if(count($this->class_builder->getPrivateProperties()) > 0) {
-                    $this->validateProperties($this->class_builder->getPrivateProperties());
+            if(is_array($this->php_class->getPrivate())) {
+                if(count($this->php_class->getPrivate()) > 0) {
+                    $this->validateProperties($this->php_class->getPrivate());
                 }
             }
         }
 
+        /**
+         * validates the protected static properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateProtectedStaticProperties() {
-            if(is_array($this->class_builder->getProtectedStaticProperties())) {
-                if(count($this->class_builder->getProtectedStaticProperties()) > 0) {
-                    $this->validateProperties($this->class_builder->getProtectedStaticProperties());
+            if(is_array($this->php_class->getProtectedStatic())) {
+                if(count($this->php_class->getProtectedStatic()) > 0) {
+                    $this->validateProperties($this->php_class->getProtectedStatic());
                 }
             }
         }
 
+        /**
+         * validates the protected properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateProtectedProperties() {
-            if(is_array($this->class_builder->getProtectedProperties())) {
-                if(count($this->class_builder->getProtectedProperties()) > 0) {
-                    $this->validateProperties($this->class_builder->getProtectedProperties());
+            if(is_array($this->php_class->getProtected())) {
+                if(count($this->php_class->getProtected()) > 0) {
+                    $this->validateProperties($this->php_class->getProtected());
                 }
             }
         }
 
+        /**
+         * validates the public static properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validatePublicStaticProperties() {
-            if(is_array($this->class_builder->getPublicStaticProperties())) {
-                if(count($this->class_builder->getPublicStaticProperties()) > 0) {
-                    $this->validateProperties($this->class_builder->getPublicStaticProperties());
+            if(is_array($this->php_class->getPublicStatic())) {
+                if(count($this->php_class->getPublicStatic()) > 0) {
+                    $this->validateProperties($this->php_class->getPublicStatic());
                 }
             }
         }
 
+        /**
+         * validates the public properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validatePublicProperties() {
-            if(is_array($this->class_builder->getPublicProperties())) {
-                if(count($this->class_builder->getPublicProperties()) > 0) {
-                    $this->validateProperties($this->class_builder->getPublicProperties());
+            if(is_array($this->php_class->getPublic())) {
+                if(count($this->php_class->getPublic()) > 0) {
+                    $this->validateProperties($this->php_class->getPublic());
                 }
             }
         }
 
+        /**
+         * validates the properties
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateProperties($properties_array) {
             foreach($properties_array as $property_type => $property) {
                 if(!preg_match(self::CLASSNAME_REGEX, $property) ) {
@@ -149,9 +228,15 @@
             }
         }
 
+        /**
+         * validates the file location of the class
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateLocation() {
-            $pos = strrpos($this->class_builder->getLocation(), '/');
-            $path = substr($this->class_builder->getLocation(), 0, $pos);
+            $pos = strrpos($this->php_class->getLocation(), '/');
+            $path = substr($this->php_class->getLocation(), 0, $pos);
 
             if(!file_exists($path)) {
                 $this->errors[] = 'Invalid location '.$path;
@@ -161,14 +246,26 @@
 
         }
 
+        /**
+         * validates the classname
+         *
+         * @since 1.0
+         * @return void
+         */
         private function validateClassname() {
-            if(!isset($this->class_builder->getClassname())) {
+            if(!$this->php_class->getClassname()) {
                 $this->errors[] = 'No classname set';
-            } else if(!preg_match(self::CLASSNAME_REGEX, $this->class_builder->getClassname())) {
+            } else if(!preg_match(self::CLASSNAME_REGEX, $this->php_class->getClassname())) {
                 $this->errors[] = 'Invalid value for classname';
             }
         }
 
+        /**
+         * getter for $this->valid
+         *
+         * @since 1.0
+         * @return void
+         */
         public function isValid() {
             return $this->valid;
         }

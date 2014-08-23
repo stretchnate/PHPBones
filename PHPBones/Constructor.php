@@ -18,8 +18,9 @@
      */
 
     /**
-     * Description of constructor
+     * PHPBones_Constructor builds the class based on the values in PHPBones_PHPClass
      *
+     * @since 1.0
      * @author stretch
      */
     class PHPBones_Constructor {
@@ -32,6 +33,7 @@
         const KEYWORD_FUNCTION = 'function';
         const KEYWORD_PUBLIC     = 'public';
         const KEYWORD_RETURN     = 'return';
+        const KEYWORD_CLASS      = 'class';
         const LINEND             = ';';
         const BRACKET_OPEN       = '{';
         const BRACKET_CLOSE      = '}';
@@ -42,10 +44,20 @@
         private $output = '';
         private $php_class = null;
 
+        /**
+         * constructor method, starts the output string
+         */
         public function __construct() {
             $this->output = '<?php ' . str_repeat(self::NL, 2);
         }
 
+        /**
+         * main build method, controls the next actions to take
+         *
+         * @param PHPBones_PHPClass $php_class
+         * @return void
+         * @since 1.0
+         */
         public function buildClass(PHPBones_PHPClass $php_class) {
             $this->php_class = $php_class;
 
@@ -60,31 +72,69 @@
             $this->write();
         }
 
+        /**
+         * writes the output string to location
+         *
+         * @throws Exception
+         * @return void
+         * @since 1.0
+         */
         private function write() {
-            file_put_contents($this->php_class->getLocation(), $this->output);
+            if(!file_put_contents($this->php_class->getLocation(), $this->output)) {
+                throw new Exception("unable to write to " . $this->php_class->getLocation());
+            }
         }
 
+        /**
+         * end the class output string
+         *
+         * @return void
+         * @since 1.0
+         */
         private function endClass() {
             $this->output .= self::NL . self::INDENT . self::BRACKET_CLOSE;
         }
 
+        /**
+         * main accessor builder method
+         *
+         * @return void
+         * @since 1.0
+         */
         private function setAllAccessorMethods() {
-            $this->setAccessorMethods($this->php_class->getPublic());
+//            $this->setAccessorMethods($this->php_class->getPublic());
             $this->setAccessorMethods($this->php_class->getProtected());
             $this->setAccessorMethods($this->php_class->getPrivate());
-            $this->setAccessorMethods($this->php_class->getPublicStatic());
-            $this->setAccessorMethods($this->php_class->getProtectedStatic());
-            $this->setAccessorMethods($this->php_class->getPrivateStatic());
+//            $this->setAccessorMethods($this->php_class->getPublicStatic(), true);
+            $this->setAccessorMethods($this->php_class->getProtectedStatic(), true);
+            $this->setAccessorMethods($this->php_class->getPrivateStatic(), true);
         }
 
-        private function setAccessorMethods(PHPBones_PHPClass_Properties $properties_obj) {
+        /**
+         * sets getter and setter for $properties_obj
+         *
+         * @param PHPBones_PHPClass_Properties $properties_obj
+         * @param bool $static
+         * @return void
+         * @since 1.0
+         */
+        private function setAccessorMethods(PHPBones_PHPClass_Properties $properties_obj, $static = false) {
             foreach($properties_obj->getProperties() as $property) {
-                $this->setGetterMethod($property);
-                $this->setSetterMethod($property);
+                $this->setGetterMethod($property, $static);
+                $this->setSetterMethod($property, $static);
             }
         }
 
-        private function setSetterMethod($property) {
+        /**
+         * builds a setter method in output
+         *
+         * @param string $property
+         * @param bool $static
+         * @return void
+         * @since 1.0
+         */
+        private function setSetterMethod($property, $static = false) {
+            $class_keyword = ($static === true) ? 'static::$' : '$this->';
             $this->output .= str_repeat(self::NL, 2) . str_repeat(self::INDENT, 2);
             $this->output .= self::KEYWORD_PUBLIC . self::SPACE .
                     self::KEYWORD_FUNCTION . self::SPACE .
@@ -92,13 +142,23 @@
                     self::PAREN_OPEN . '$'.$property . self::PAREN_CLOSE . self::SPACE . self::BRACKET_OPEN;
 
             $this->output .= self::NL . str_repeat(self::INDENT, 3);
-            $this->output .= self::KEYWORD_RETURN . '$this->' . $property . self::SPACE .
+            $this->output .= $class_keyword . $property . self::SPACE .
                     self::EQUALS . self::SPACE . '$'.$property . self::LINEND;
 
+            $this->output .= self::NL . str_repeat(self::INDENT, 3) . self::KEYWORD_RETURN . self::SPACE . '$this;';
             $this->output .= self::NL . str_repeat(self::INDENT, 2) . self::BRACKET_CLOSE;
         }
 
-        private function setGetterMethod($property) {
+        /**
+         * builds a getter method for $property in output
+         *
+         * @param type $property
+         * @param type $static
+         * @return void
+         * @since 1.0
+         */
+        private function setGetterMethod($property, $static = false) {
+            $class_keyword = ($static === true) ? 'static::$' : '$this->';
             $this->output .= str_repeat(self::NL, 2) . str_repeat(self::INDENT, 2);
             $this->output .= self::KEYWORD_PUBLIC . self::SPACE .
                     self::KEYWORD_FUNCTION . self::SPACE .
@@ -106,16 +166,28 @@
                     self::PAREN_OPEN . self::PAREN_CLOSE . self::SPACE . self::BRACKET_OPEN;
 
             $this->output .= self::NL . str_repeat(self::INDENT, 3);
-            $this->output .= self::KEYWORD_RETURN . '$this->' . $property . self::LINEND;
+            $this->output .= self::KEYWORD_RETURN . self::SPACE . $class_keyword . $property . self::LINEND;
             $this->output .= self::NL . str_repeat(self::INDENT, 2) . self::BRACKET_CLOSE;
         }
 
+        /**
+         * buids the class __construct
+         *
+         * @return void
+         * @since 1.0
+         */
         private function setConstruct() {
             $this->output .= self::NL . str_repeat(self::INDENT, 2);
             $this->output .= self::KEYWORD_PUBLIC . self::SPACE . self::KEYWORD_FUNCTION . self::SPACE;
             $this->output .= '__construct()' . self::SPACE . self::BRACKET_OPEN . self::BRACKET_CLOSE;
         }
 
+        /**
+         * main property builder method
+         *
+         * @return void
+         * @since 1.0
+         */
         private function setAllProperties() {
             $this->setProperties($this->php_class->getPublic());
             $this->setProperties($this->php_class->getProtected());
@@ -125,30 +197,60 @@
             $this->setProperties($this->php_class->getPrivateStatic());
         }
 
+        /**
+         * builds a class property in output
+         *
+         * @param PHPBones_PHPClass_Properties $properties_obj
+         * @return void
+         * @since 1.0
+         */
         private function setProperties(PHPBones_PHPClass_Properties $properties_obj) {
             $static = ($properties_obj->getStatic() === true) ? 'static' . self::SPACE : '';
             foreach($properties_obj->getProperties() as $property) {
                 $this->output .=
                         $properties_obj->getAccess() . self::SPACE .
-                        $static . $property . self::LINEND .
+                        $static . '$' . $property . self::LINEND .
                         self::NL . str_repeat(self::INDENT, 2);
             }
         }
 
+        /**
+         * builds the include_once's
+         *
+         * @return void
+         * @since 1.0
+         */
         private function setIncludes() {
             foreach($this->php_class->getIncludes() as $included) {
                 $this->output .= self::INDENT . "'include_once('".$included."');" . self::NL;
             }
         }
 
+        /**
+         * builds the require_once's
+         *
+         * @return void
+         * @since 1.0
+         */
         private function setRequires() {
             foreach($this->php_class->getRequires() as $required) {
                 $this->output .= self::INDENT . "'require_once('".$required."');" . self::NL;
             }
         }
 
+        /**
+         * builds the class declaration
+         *
+         * @return void
+         * @since 1.0
+         */
         private function setClassDeclaration() {
-            $this->output .= self::INDENT . $this->php_class->getClassname() . self::SPACE;
+            $this->output .=
+                    self::INDENT .
+                    self::KEYWORD_CLASS .
+                    self::SPACE .
+                    $this->php_class->getClassname() .
+                    self::SPACE;
 
             if($this->php_class->getExtends()) {
                 $this->output .= self::KEYWORD_EXTENDS

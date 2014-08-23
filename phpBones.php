@@ -18,33 +18,65 @@
      */
     require_once('PHPBones/Validator.php');
     require_once('PHPBones/phpClass.php');
-    require_once('PHPBones/constructor.php');
+    require_once('PHPBones/Constructor.php');
 
     /**
-     * Description of PHPBones
+     * PHPBones is a php library that builds bare bones classes in PHP. Including require_once,
+     * include_once, extends, implements, properties and property access methods.
+     *
+     * example command
+     *      php php_bones.php classname=newClass extends=oldClass implements=classInterface private=property1,property2,property3 protected=property4,property5 public_static=property6 location=/tmp/newClass.php
      *
      * @author stretch
      */
     class PHPBones {
         private $php_class = null;
 
+        /**
+         * class constructor
+         */
         public function __construct() {
-            $this->php_class = new PHPClass();
+            $this->php_class = new PHPBones_PHPClass();
         }
 
+        /**
+         * builds the php class after all args are validated
+         *
+         * @since 1.0
+         * @return string
+         */
         public function buildClass() {
-            if($this->validate($this->php_class)) {
-				$constructor = new PHPBones_Constructor();
-				$constructor->buildClass($this->php_class);
+            $result = 'succesfully built '. $this->php_class->getClassname();
+            try {
+                if($this->validate($this->php_class)) {
+                    $constructor = new PHPBones_Constructor();
+                    $constructor->buildClass($this->php_class);
+                }
+            } catch (Exception $e) {
+                $result = $e->getMessage();
             }
+
+            return $result;
         }
 
+        /**
+         * validates the arguments
+         *
+         * @since 1.0
+         * @return bool
+         */
         private function validate() {
             $validator = new PHPBones_Validator();
             $validator->validate($this->php_class);
             return $validator->isValid();
         }
 
+        /**
+         * converts an argument to a boolean value, 'false' === false
+         *
+         * @param mixed $value
+         * @return bool
+         */
         public static function getBoolean($value) {
             if(!is_bool($value)) {
                 if($value == 'false') {
@@ -57,44 +89,7 @@
             return $value;
         }
 
-        public function &getPHPClass() {
+        public function getPHPClass() {
             return $this->php_class;
         }
     }
-
-    $property_array = array();
-    foreach($argv as $arg) {
-        if(strpos("=", $arg) !== false) {
-            $arg = explode("=", $arg);
-            if(strpos(",", $arg[1]) !== false) {
-                $property_array[$arg[0]] = explode(",", $arg[1]);
-            } else {
-                $property_array[$arg[0]] = $arg[1];
-            }
-        } else {
-            switch($arg) {
-                case '-a':
-                    $with_getters = false;
-                    break;
-            }
-        }
-    }
-
-    $class_builder = new PHPBones();
-    $class = $class_builder->getPHPClass();
-    if(isset($with_getters)) {
-        $class->addAccessMethods($with_getters);
-    }
-
-    foreach($property_array as $index => $value) {
-        $metod = 'set';
-        if(strpos($index, "_") > 0) {
-            $method .= str_replace(" ", "", ucwords(str_replace("_", " ", $index)));
-        } else {
-            $method .= ucwords($index);
-        }
-
-        $class->$method($value);
-    }
-
-    $class_builder->buildClass();

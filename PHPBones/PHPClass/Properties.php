@@ -18,32 +18,31 @@
      */
 
     /**
-     * Description of Properties
+     * PHPBones_PHPClass_Properties contains properties of a certain type for PHPBones_PHPClass
      *
      * @author stretch
+     * @since 1.0
      */
     class PHPBones_PHPClass_Properties {
         const ACCESS_PUBLIC    = 'public';
         const ACCESS_PRIVATE   = 'private';
         const ACCESS_PROTECTED = 'protected';
-        const TYPE_STATIC      = 'static';
 
         private $access = null;
         private $static = false;
         private $properties = array();
 
-        public function __construct(array $properties) {
-            $type = array_keys($properties);
-            $pos = strpos($type, self::TYPE_STATIC);
-            if($pos !== false) {
-                $this->static = true;
-
-                if($pos > 0) {
-                    $access = substr($type, 0, $pos-1);
-                } else {
-                    $access = substr($type, 7);
-                }
-            }
+        /**
+         * class constructor method, sets access and static
+         *
+         * @param string $access
+         * @param bool $static
+         * @throws UnexpectedValueException
+         * @return void
+         * @since 1.0
+         */
+        public function __construct($access, $static = false) {
+            $this->static = $static;
 
             switch($access) {
                 case self::ACCESS_PRIVATE:
@@ -58,18 +57,40 @@
                 default:
                     throw new UnexpectedValueException("Invalid property access");
             }
-
-            $this->properties = $properties;
         }
 
+        /**
+         * sets the properties
+         *
+         * @param array $properties
+         * @return \PHPBones_PHPClass_Properties
+         * @since 1.0
+         */
+        public function setProperties(array $properties) {
+            $this->properties = $properties;
+            return $this;
+        }
+
+        /**
+         * @return bool
+         * @since 1.0
+         */
         public function getStatic() {
             return $this->static;
         }
 
+        /**
+         * @return array
+         * @since 1.0
+         */
         public function getProperties() {
             return $this->properties;
         }
 
+        /**
+         * @return string
+         * @since 1.0
+         */
         public function getAccess() {
             return $this->access;
         }
